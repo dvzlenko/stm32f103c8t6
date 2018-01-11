@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_tim.h"
+#include "FreeRTOS.h"
+#include "task.h"
 #include "pwm.h"
 
 extern uint32_t SystemCoreClock;
@@ -130,4 +132,110 @@ int pwm_set(enum pwm_id id, unsigned int dc)
 	TIM_CtrlPWMOutputs(pwm->tim, ENABLE);
 
 	return 0;
+}
+
+#define SENS_GPIO	GPIOB
+#define SENS_RCC	RCC_APB2Periph_GPIOB
+#define SENS_RCC_INIT	RCC_APB2PeriphClockCmd
+
+#define SENS_PIN1	GPIO_Pin_12
+#define SENS_PIN2	GPIO_Pin_13
+#define SENS_PIN3	GPIO_Pin_14
+
+#define SENS_PINS	(SENS_PIN1 | SENS_PIN2)
+
+#define PWM_DEL		((200 * configTICK_RATE_HZ) / 1000)
+#define PWM_DC1		70
+#define PWM_DC		40
+
+#define GATE_TIMEOUT		(3 * 60 * configTICK_RATE_HZ)
+
+void gate_open(enum pwm_id pwm)
+{
+	pwm_set(pwm, 0);
+}
+
+void gate_close(enum pwm_id pwm)
+{
+	pwm_set(pwm, PWM_DC1);
+	vTaskDelay(PWM_DEL);
+	pwm_set(pwm, PWM_DC);
+}
+
+void gate_reset()
+{
+	gate_open(PWM0);
+	gate_close(PWM1);
+}
+
+#define gate_timeout_restart()				\
+do {							\
+	now = xTaskGetTickCount();			\
+	gate_timeout = now + GATE_TIMEOUT;		\
+	tick_wrap = gate_timeout < now ? 1 : 0;		\
+} while (0)
+
+void pwm_ctl(void *vpars)
+{
+	int gate_count = 0, tick_wrap, state = 0;
+	portTickType t, now, gate_timeout;
+	unsigned long sens = 0, sens_old = 0;
+	GPIO_InitTypeDef gs = {
+		.GPIO_Pin = SENS_PIN1 | SENS_PIN2 | SENS_PIN3,
+		.GPIO_Mode = GPIO_Mode_IPD,
+		.GPIO_Speed = GPIO_Speed_50MHz,
+	};
+
+	SENS_RCC_INIT(SENS_RCC, ENABLE);
+	GPIO_Init(SENS_GPIO, &gs);
+
+	t = xTaskGetTickCount();
+	gate_reset();
+
+	while (1) {
+		unsigned long s;
+
+		vTaskDelay(100);
+
+		now = xTaskGetTickCount();
+		if (now < t)
+			tick_wrap = 0;
+		t = now;
+
+		sens_old = sens;
+		s = GPIO_ReadInputData(SENS_GPIO);
+		sens = 0;
+		if (s & SENS_PIN1)
+			sens |= 1;
+		if (s & SENS_PIN2)
+			sens |= 2;
+		if (s & SENS_PIN3)
+			sens |= 4;
+
+		if (gate_count && !tick_wrap &&
+			xTaskGetTickCount() >= gate_timeout) {
+				gate_reset();
+				gate_count = 0;
+				state = 0;
+		}
+
+		if (!(sens ^ sens_old))
+			continue;
+
+		if (state == 0 && sens == 4) {
+			state = 1;
+			gate_close(PWM0);
+			gate_open(PWM1);
+
+			gate_timeout_restart();
+		}
+
+		if (state == 1) {
+			if (sens & 6) {
+				gate_timeout_restart();
+				gate_count = 0;
+			} else
+				gate_count = 1;
+		}
+	}
 }

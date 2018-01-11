@@ -11,4 +11,6 @@ enum pwm_id {
 int pwm_init(enum pwm_id id, unsigned int hz);
 int pwm_set(enum pwm_id id, unsigned int dc);
 
+void pwm_ctl(void *);
+
 #endif /* __PWM_H__ */
