@@ -222,7 +222,7 @@ void pwm_ctl(void *vpars)
 		if (!(sens ^ sens_old))
 			continue;
 
-		if (state == 0 && sens == 4) {
+		if (state == 0 && (sens & 7) == 4) {
 			state = 1;
 			gate_close(PWM0);
 			gate_open(PWM1);
