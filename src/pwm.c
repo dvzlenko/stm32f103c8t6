@@ -141,8 +141,9 @@ int pwm_set(enum pwm_id id, unsigned int dc)
 #define SENS_PIN1	GPIO_Pin_12
 #define SENS_PIN2	GPIO_Pin_13
 #define SENS_PIN3	GPIO_Pin_14
+#define SENS_PIN4	GPIO_Pin_15
 
-#define SENS_PINS	(SENS_PIN1 | SENS_PIN2)
+#define SENS_PINS	(SENS_PIN1 | SENS_PIN2 | SENS_PIN3 | SENS_PIN4)
 
 #define PWM_DEL		((200 * configTICK_RATE_HZ) / 1000)
 #define PWM_DC1		70
@@ -181,7 +182,7 @@ void pwm_ctl(void *vpars)
 	portTickType t, now, gate_timeout;
 	unsigned long sens = 0, sens_old = 0;
 	GPIO_InitTypeDef gs = {
-		.GPIO_Pin = SENS_PIN1 | SENS_PIN2 | SENS_PIN3,
+		.GPIO_Pin = SENS_PINS,
 		.GPIO_Mode = GPIO_Mode_IPD,
 		.GPIO_Speed = GPIO_Speed_50MHz,
 	};
@@ -211,13 +212,8 @@ void pwm_ctl(void *vpars)
 			sens |= 2;
 		if (s & SENS_PIN3)
 			sens |= 4;
-
-		if (gate_count && !tick_wrap &&
-			xTaskGetTickCount() >= gate_timeout) {
-				gate_reset();
-				gate_count = 0;
-				state = 0;
-		}
+		if (s & SENS_PIN4)
+			sens |= 8;
 
 		if (!(sens ^ sens_old))
 			continue;
@@ -226,16 +222,11 @@ void pwm_ctl(void *vpars)
 			state = 1;
 			gate_close(PWM0);
 			gate_open(PWM1);
-
-			gate_timeout_restart();
 		}
 
-		if (state == 1) {
-			if (sens & 6) {
-				gate_timeout_restart();
-				gate_count = 0;
-			} else
-				gate_count = 1;
+		if (state == 1 && sens & 8) {
+			gate_reset();
+			state = 0;
 		}
 	}
 }
