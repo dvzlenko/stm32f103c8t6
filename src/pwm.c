@@ -142,8 +142,9 @@ int pwm_set(enum pwm_id id, unsigned int dc)
 #define SENS_PIN2	GPIO_Pin_13
 #define SENS_PIN3	GPIO_Pin_14
 #define SENS_PIN4	GPIO_Pin_15
+#define SENS_PIN5	GPIO_Pin_11
 
-#define SENS_PINS	(SENS_PIN1 | SENS_PIN2 | SENS_PIN3 | SENS_PIN4)
+#define SENS_PINS	(SENS_PIN1 | SENS_PIN2 | SENS_PIN3 | SENS_PIN4 | SENS_PIN5)
 
 #define PWM_DEL		((200 * configTICK_RATE_HZ) / 1000)
 #define PWM_DC1		70
@@ -214,6 +215,8 @@ void pwm_ctl(void *vpars)
 			sens |= 4;
 		if (s & SENS_PIN4)
 			sens |= 8;
+		if (s & SENS_PIN5)
+			sens |= 0x10;
 
 		if (!(sens ^ sens_old))
 			continue;
@@ -224,9 +227,15 @@ void pwm_ctl(void *vpars)
 			gate_open(PWM1);
 		}
 
-		if (state == 1 && sens & 8) {
-			gate_reset();
+		if (state == 1 && (sens & 0x18) == 0x18)
+			state = 2;
+
+		if (state == 2 && (sens & 0x18) == 0x10)
+			state = 3;
+
+		if (state == 3 && (sens & 0x18) == 0) {
 			state = 0;
+			gate_reset();
 		}
 	}
 }
