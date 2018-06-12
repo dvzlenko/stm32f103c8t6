@@ -10,6 +10,7 @@ LIBS:cmos4000
 LIBS:adc-dac
 LIBS:memory
 LIBS:xilinx
+LIBS:special
 LIBS:microcontrollers
 LIBS:dsp
 LIBS:microchip
@@ -884,9 +885,9 @@ $EndComp
 Wire Wire Line
 	4050 6850 4150 6850
 Text Notes 2850 2400 1    60   ~ 0
-sensor_port_1
+sensor_port_2
 Text Notes 3000 5950 1    60   ~ 0
-coil_port_1
+coil_port_2
 Text Notes 4400 5250 0    60   ~ 0
 Ao
 Text Notes 4400 6750 0    60   ~ 0
@@ -986,4 +987,133 @@ Wire Wire Line
 	10300 3350 10200 3350
 Wire Wire Line
 	10200 3350 10200 3250
+Text Label 5650 4250 2    60   ~ 0
+PWM_00
+Text Label 5650 4350 2    60   ~ 0
+PWM_01
+Text Label 5650 5250 2    60   ~ 0
+PWM_10
+Text Label 5650 5350 2    60   ~ 0
+PWM_11
+Text Label 5650 3850 2    60   ~ 0
+SENS_00
+Text Label 5650 3950 2    60   ~ 0
+SENS_01
+Text Label 5650 4050 2    60   ~ 0
+SENS_02
+Text Label 5650 4150 2    60   ~ 0
+SENS_03
+Text Label 5650 4850 2    60   ~ 0
+SENS_10
+Text Label 5650 4950 2    60   ~ 0
+SENS_11
+Text Label 5650 5050 2    60   ~ 0
+SENS_12
+Text Label 5650 5150 2    60   ~ 0
+SENS_13
+Text Label 1700 1700 0    60   ~ 0
+SENS_00
+Text Label 1700 2000 0    60   ~ 0
+SENS_01
+Text Label 1700 2300 0    60   ~ 0
+SENS_02
+Text Label 1700 2600 0    60   ~ 0
+SENS_03
+Text Label 3450 1750 0    60   ~ 0
+SENS_10
+Text Label 3450 2050 0    60   ~ 0
+SENS_11
+Text Label 3450 2350 0    60   ~ 0
+SENS_12
+Text Label 3450 2650 0    60   ~ 0
+SENS_13
+Text Label 2700 5300 0    60   ~ 0
+PWM_00
+Text Label 2700 6800 0    60   ~ 0
+PWM_01
+Text Label 4450 6850 0    60   ~ 0
+PWM_11
+Text Label 4450 5350 0    60   ~ 0
+PWM_10
+$Comp
+L GND #PWR?
+U 1 1 5B209E40
+P 8050 3850
+F 0 "#PWR?" H 8050 3600 50  0001 C CNN
+F 1 "GND" H 8050 3700 50  0000 C CNN
+F 2 "" H 8050 3850 50  0000 C CNN
+F 3 "" H 8050 3850 50  0000 C CNN
+	1    8050 3850
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 5B209EE2
+P 8050 3950
+F 0 "#PWR?" H 8050 3700 50  0001 C CNN
+F 1 "GND" H 8050 3800 50  0000 C CNN
+F 2 "" H 8050 3950 50  0000 C CNN
+F 3 "" H 8050 3950 50  0000 C CNN
+	1    8050 3950
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 5B20A0CF
+P 5650 5650
+F 0 "#PWR?" H 5650 5400 50  0001 C CNN
+F 1 "GND" H 5650 5500 50  0000 C CNN
+F 2 "" H 5650 5650 50  0000 C CNN
+F 3 "" H 5650 5650 50  0000 C CNN
+	1    5650 5650
+	0    1    1    0   
+$EndComp
+$Comp
+L +5V #PWR?
+U 1 1 5B20D291
+P 5650 5550
+F 0 "#PWR?" H 5650 5400 50  0001 C CNN
+F 1 "+5V" H 5650 5690 50  0000 C CNN
+F 2 "" H 5650 5550 50  0000 C CNN
+F 3 "" H 5650 5550 50  0000 C CNN
+	1    5650 5550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R?
+U 1 1 5B20E5A1
+P 5300 5450
+F 0 "R?" V 5380 5450 50  0000 C CNN
+F 1 "1.5k" V 5300 5450 50  0000 C CNN
+F 2 "" V 5230 5450 50  0000 C CNN
+F 3 "" H 5300 5450 50  0000 C CNN
+	1    5300 5450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5450 5450 5650 5450
+Wire Wire Line
+	5650 4650 5150 4650
+Wire Wire Line
+	5150 4650 5150 5450
+Text Notes 6650 4850 0    60   ~ 0
+DESOLDER R10!
+Wire Notes Line
+	6100 4650 6300 4650
+Wire Notes Line
+	6300 4650 6300 4850
+Wire Notes Line
+	6250 4850 6350 4850
+Wire Notes Line
+	6350 4850 6350 5000
+Wire Notes Line
+	6350 5000 6250 5000
+Wire Notes Line
+	6250 5000 6250 4850
+Wire Notes Line
+	6050 5750 6300 5750
+Wire Notes Line
+	6300 5750 6300 5000
+Text Notes 6400 4950 0    60   ~ 0
+R10
 $EndSCHEMATC
